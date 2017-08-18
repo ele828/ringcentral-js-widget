@@ -3,16 +3,6 @@
   "version": "0.1.0",
   "description": "RingCentral Integration Widget Library",
   "main": "index.js",
-  "scripts": {
-    "test": "jest --no-cache",
-    "test:watch": "yarn test -- --watch",
-    "test:coverage": "yarn test -- --coverage",
-    "build": "node ./node_modules/babel-cli/bin/babel-node.js ./node_modules/gulp/bin/gulp.js build",
-    "gulp": "node ./node_modules/babel-cli/bin/babel-node.js ./node_modules/gulp/bin/gulp.js",
-    "dev-server": "node ./node_modules/babel-cli/bin/babel-node.js ./node_modules/gulp/bin/gulp.js dev-server",
-    "release": "node ./node_modules/babel-cli/bin/babel-node.js ./node_modules/gulp/bin/gulp.js release",
-    "eslint": "node ./node_modules/eslint/bin/eslint.js --quiet src --ignore-pattern *.test.js"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ringcentral/ringcentral-js-widget.git"
@@ -87,7 +77,7 @@
     "redux-thunk": "^2.2.0",
     "ringcentral": "^3.1.2",
     "ringcentral-client": "^1.0.0-rc1",
-    "ringcentral-integration": "^0.7.9",
+    "ringcentral-integration": "^0.7.7",
     "sass-loader": "^6.0.5",
     "source-map-loader": "^0.2.1",
     "style-loader": "^0.18.2",

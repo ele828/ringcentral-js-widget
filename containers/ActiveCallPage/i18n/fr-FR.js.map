@@ -1,0 +1,1 @@
+{"version":3,"sources":["containers/ActiveCallPage/i18n/fr-FR.js"],"names":["unknown"],"mappings":";;;;;kBAAe;AACbA,WAAS;AADI,C","file":"fr-FR.js","sourcesContent":["export default {\n  unknown: 'Inconnu',\n};\n"]}
