@@ -30,7 +30,9 @@ export default function SettingsPanel({
   onCallingSettingsLinkClick,
   onRegionSettingsLinkClick,
   onAudioSettingsLinkClick,
+  showCalling,
   showAutoLog,
+  showAudio,
   autoLogEnabled,
   onAutoLogChange,
   showAutoLogSMS,
@@ -84,6 +86,23 @@ export default function SettingsPanel({
       </LinkLine>
     ) :
     null;
+
+  const calling = showCalling
+    ? (
+      <LinkLine
+        onClick={onCallingSettingsLinkClick} >
+        {i18n.getString('calling', currentLocale)}
+      </LinkLine>
+    )
+    : null;
+  const audio = showAudio
+    ? (
+      <LinkLine
+        onClick={onAudioSettingsLinkClick} >
+        {i18n.getString('audio', currentLocale)}
+      </LinkLine>
+    )
+    : null;
   const presenceSetting = (dndStatus && userStatus) ?
     (
       <PresenceSettingSection
@@ -165,15 +184,9 @@ export default function SettingsPanel({
           showHeader && styles.contentWithHeader,
         )}>
         {locale}
-        <LinkLine
-          onClick={onCallingSettingsLinkClick} >
-          {i18n.getString('calling', currentLocale)}
-        </LinkLine>
+        {calling}
         {region}
-        <LinkLine
-          onClick={onAudioSettingsLinkClick} >
-          {i18n.getString('audio', currentLocale)}
-        </LinkLine>
+        {audio}
         {presenceSetting}
         {children}
         {autoLog}
@@ -219,13 +232,15 @@ SettingsPanel.propTypes = {
   loginNumber: PropTypes.string.isRequired,
   onLogoutButtonClick: PropTypes.func.isRequired,
   onRegionSettingsLinkClick: PropTypes.func.isRequired,
+  showCalling: PropTypes.bool,
+  showRegion: PropTypes.bool,
+  showAudio: PropTypes.bool,
   showAutoLog: PropTypes.bool,
   autoLogEnabled: PropTypes.bool,
   onAutoLogChange: PropTypes.func,
   showAutoLogSMS: PropTypes.bool,
   autoLogSMSEnabled: PropTypes.bool,
   onAutoLogSMSChange: PropTypes.func,
-  showRegion: PropTypes.bool.isRequired,
   showClickToDial: PropTypes.bool,
   clickToDialEnabled: PropTypes.bool,
   onClickToDialChange: PropTypes.func,
@@ -255,6 +270,8 @@ SettingsPanel.defaultProps = {
   showClickToDial: false,
   clickToDialEnabled: false,
   onClickToDialChange: undefined,
+  showCalling: false,
+  showAudio: false,
   showAutoLog: false,
   autoLogEnabled: false,
   onAutoLogChange: undefined,
