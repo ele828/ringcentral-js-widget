@@ -35,8 +35,18 @@ const base = {
         exclude: /node_modules|font/,
         use: [
           'babel-loader',
-          'react-svg-loader'
-        ],
+          {
+            loader: 'react-svg-loader',
+            options: {
+              svgo: {
+                plugins: [
+                  { removeTitle: true }
+                ],
+                floatPrecision: 2
+              }
+            }
+          }
+        ]
       },
       {
         test: /\.png|\.jpg|\.gif|\.svg/,

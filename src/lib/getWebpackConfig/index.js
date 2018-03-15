@@ -37,8 +37,18 @@ function getBaseConfig({
           exclude: /fonts/,
           use: [
             'babel-loader',
-            'react-svg-loader',
-          ],
+            {
+              loader: 'react-svg-loader',
+              options: {
+                svgo: {
+                  plugins: [
+                    { removeTitle: true }
+                  ],
+                  floatPrecision: 2
+                }
+              }
+            }
+          ]
         },
         {
           test: /\.png|\.jpg|\.gif|fonts(\/|\\).*\.svg/,
