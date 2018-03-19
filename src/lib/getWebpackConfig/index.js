@@ -37,17 +37,7 @@ function getBaseConfig({
           exclude: /fonts/,
           use: [
             'babel-loader',
-            {
-              loader: 'react-svg-loader',
-              options: {
-                svgo: {
-                  plugins: [
-                    { removeTitle: true }
-                  ],
-                  floatPrecision: 2
-                }
-              }
-            }
+            'react-svg-loader'
           ]
         },
         {
