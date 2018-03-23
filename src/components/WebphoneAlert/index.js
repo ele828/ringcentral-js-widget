@@ -22,6 +22,7 @@ export default function WebphoneAlert(props) {
     message === webphoneErrors.serverTimeout ||
     message === webphoneErrors.internalServerError ||
     message === webphoneErrors.sipProvisionError ||
+    message === webphoneErrors.webphoneForbidden ||
     message === webphoneErrors.unknownError
   ) {
     const { statusCode } = props.message.payload;
@@ -53,6 +54,7 @@ WebphoneAlert.propTypes = {
 WebphoneAlert.handleMessage = ({ message }) => (
   (message === webphoneErrors.browserNotSupported) ||
   (message === webphoneErrors.webphoneCountOverLimit) ||
+  (message === webphoneErrors.webphoneForbidden) ||
   (message === webphoneErrors.notOutboundCallWithoutDL) ||
   (message === webphoneErrors.toVoiceMailError) ||
   (message === webphoneErrors.connected) ||
