@@ -7222,7 +7222,7 @@ ringcentral-client@^1.0.0-beta.1:
 
 "ringcentral-integration@https://github.com/ringcentral/ringcentral-js-integration-commons#latest":
   version "0.1.0"
-  resolved "https://github.com/ringcentral/ringcentral-js-integration-commons#dc87949d3d97b81219173fa92bc5d7d5024058df"
+  resolved "https://github.com/ringcentral/ringcentral-js-integration-commons#aa3a966d0c906fb8d9822810de922537b1f962ea"
   dependencies:
     file-loader "^0.11.2"
     json-mask "^0.3.8"
