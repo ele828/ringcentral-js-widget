@@ -96,3 +96,8 @@
   color: #a9a9a9;
   cursor: not-allowed;
 }
+
+.recipients {
+  max-height: 24vh;
+  overflow-y: auto;
+}

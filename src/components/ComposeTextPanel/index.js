@@ -88,6 +88,7 @@ class ComposeTextPanel extends Component {
         <form onSubmit={this.handleSubmit}>
           <RecipientsInput
             value={this.props.typingToNumber}
+            recipientsClassName={styles.recipients}
             onChange={this.props.updateTypingToNumber}
             onClean={this.cleanReceiverValue}
             recipients={this.props.toNumbers}
