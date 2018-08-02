@@ -1,7 +1,6 @@
 import RingCentralWebphone from 'ringcentral-web-phone';
 import incomingAudio from 'ringcentral-web-phone/audio/incoming.ogg';
 import outgoingAudio from 'ringcentral-web-phone/audio/outgoing.ogg';
-import { camelize } from '../../lib/di/utils/utils';
 
 import { Module } from '../../lib/di';
 import RcModule from '../../lib/RcModule';
@@ -22,8 +21,10 @@ import {
   normalizeSession,
   isRing,
   isOnHold,
+  isRecording,
   isConferenceSession,
   sortByCreationTimeDesc,
+  extractHeadersData,
 } from './webphoneHelper';
 import getWebphoneReducer from './getWebphoneReducer';
 
@@ -103,9 +104,20 @@ export default class Webphone extends RcModule {
     this._audioSettings = this::ensureExist(audioSettings, 'audioSettings');
     this._contactMatcher = contactMatcher;
     this._tabManager = tabManager;
-    this._onCallEndFunc = onCallEnd;
-    this._onCallRingFunc = onCallRing;
-    this._onCallStartFunc = onCallStart;
+
+    this._onCallEndFunctions = [];
+    if (typeof onCallEnd === 'function') {
+      this._onCallEndFunctions.push(onCallEnd);
+    }
+    this._onCallRingFunctions = [];
+    if (typeof onCallRing === 'function') {
+      this._onCallRingFunctions.push(onCallRing);
+    }
+    this._onCallStartFunctions = [];
+    if (typeof onCallStart === 'function') {
+      this._onCallStartFunctions.push(onCallStart);
+    }
+
     this._webphone = null;
     this._remoteVideo = null;
     this._localVideo = null;
@@ -468,7 +480,8 @@ export default class Webphone extends RcModule {
     this._webphone.userAgent.on('unregistered', onUnregistered);
     this._webphone.userAgent.on('registrationFailed', onRegistrationFailed);
     this._webphone.userAgent.on('invite', (session) => {
-      console.debug('UA invite');
+      console.log('UA invite');
+      extractHeadersData(session, session.request.headers);
       this._onInvite(session);
     });
   }
@@ -626,32 +639,12 @@ export default class Webphone extends RcModule {
 
   _onAccepted(session) {
     session.on('accepted', (incomingResponse) => {
-      // todo: log the response
       if (session.callStatus === sessionStatus.finished) {
         return;
       }
       console.log('accepted');
       session.callStatus = sessionStatus.connected;
-      if (
-        incomingResponse &&
-        (typeof incomingResponse.headers).toLowerCase() === 'object' &&
-        Array.isArray(incomingResponse.headers['P-Rc-Api-Ids']) &&
-        incomingResponse.headers['P-Rc-Api-Ids'].length &&
-        (typeof incomingResponse.headers['P-Rc-Api-Ids'][0]).toLowerCase() === 'object' &&
-        (typeof incomingResponse.headers['P-Rc-Api-Ids'][0].raw).toLowerCase() === 'string'
-      ) {
-        /**
-         * interface SessionData{
-         *  "partyId": String,
-         *  "sessionId": String
-         * }
-         */
-        session.data = incomingResponse.headers['P-Rc-Api-Ids'][0].raw.split(';')
-          .map(sub => sub.split('=')).reduce((accum, [key, value]) => {
-            accum[camelize(key)] = value;
-            return accum;
-          }, {});
-      }
+      extractHeadersData(session, incomingResponse.headers);
       this._onCallStart(session);
     });
     session.on('progress', () => {
@@ -705,12 +698,12 @@ export default class Webphone extends RcModule {
     session.on('hold', () => {
       console.log('Event: hold');
       session.callStatus = sessionStatus.onHold;
-      session.lastHoldingTime = +new Date();
       this._updateSessions();
     });
     session.on('unhold', () => {
       console.log('Event: unhold');
       session.callStatus = sessionStatus.connected;
+      session.lastActiveTime = +new Date();
       this._updateSessions();
     });
     session.mediaHandler.on('userMediaFailed', () => {
@@ -1177,6 +1170,7 @@ export default class Webphone extends RcModule {
   clearSessionCaching() {
     this.store.dispatch({
       type: this.actionTypes.clearSessionCaching,
+      sessions: [...this._sessions.values()].map(normalizeSession),
     });
   }
 
@@ -1223,6 +1217,9 @@ export default class Webphone extends RcModule {
     if (typeof this._onCallStartFunc === 'function') {
       this._onCallStartFunc(normalizedSession, this.activeSession);
     }
+    this._onCallStartFunctions.forEach(
+      handler => handler(normalizedSession, this.activeSession)
+    );
   }
 
   _onCallStart(session) {
@@ -1258,6 +1255,9 @@ export default class Webphone extends RcModule {
     if (typeof this._onCallRingFunc === 'function') {
       this._onCallRingFunc(normalizedSession, this.ringSession);
     }
+    this._onCallRingFunctions.forEach(
+      handler => handler(normalizedSession, this.ringSession)
+    );
   }
 
   _onCallEnd(session) {
@@ -1271,6 +1271,9 @@ export default class Webphone extends RcModule {
     if (typeof this._onCallEndFunc === 'function') {
       this._onCallEndFunc(normalizedSession, this.activeSession);
     }
+    this._onCallEndFunctions.forEach(
+      handler => handler(normalizedSession, this.activeSession)
+    );
   }
 
   async _retrySleep() {
@@ -1302,6 +1305,32 @@ export default class Webphone extends RcModule {
         statusCode: this.statusCode
       },
     });
+  }
+
+  onCallStart(handler) {
+    if (typeof handler === 'function') {
+      this._onCallStartFunctions.push(handler);
+    }
+  }
+
+  onCallRing(handler) {
+    if (typeof handler === 'function') {
+      this._onCallRingFunctions.push(handler);
+    }
+  }
+
+  onCallEnd(handler) {
+    if (typeof handler === 'function') {
+      this._onCallEndFunctions.push(handler);
+    }
+  }
+
+  isCallRecording(session) {
+    if (isRecording(session)) {
+      this._alert.warning({ message: recordStatus.recording });
+      return true;
+    }
+    return false;
   }
 
   get status() {
@@ -1392,6 +1421,7 @@ export default class Webphone extends RcModule {
       }
     };
   }
+
   get isOnTransfer() {
     return this.activeSession && this.activeSession.isOnTransfer;
   }
